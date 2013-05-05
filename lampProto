@@ -1,0 +1,90 @@
+
+import controlP5.*;
+import processing.serial.*;
+import cc.arduino.*;
+
+Arduino arduino;
+ControlP5 cp5;
+
+int[] led = { 2, 3, 4, 6 };
+
+int myColorBackground = color(0,0,0);
+
+RadioButton r;
+
+void setup() {
+  size(700,400);
+
+  arduino = new Arduino(this, Arduino.list()[0], 57600);
+  arduino.pinMode(led[0], Arduino.OUTPUT);
+  arduino.pinMode(led[1], Arduino.OUTPUT);
+  arduino.pinMode(led[2], Arduino.OUTPUT);
+  arduino.pinMode(led[3], Arduino.OUTPUT);
+  
+  cp5 = new ControlP5(this);
+  r = cp5.addRadioButton("radioButton")
+         .setPosition(20,160)
+         .setSize(40,20)
+         .setColorForeground(color(120))
+         .setColorActive(color(255))
+         .setColorLabel(color(255))
+         .setItemsPerRow(4)
+         .setSpacingColumn(50)
+         .addItem("light1",1)
+         .addItem("light2",2)
+         .addItem("light3",3)
+         .addItem("light4",4)
+         ;
+     
+     for(Toggle t:r.getItems()) {
+       t.captionLabel().setColorBackground(color(255,80));
+       t.captionLabel().style().moveMargin(-7,0,0,-3);
+       t.captionLabel().style().movePadding(7,0,0,3);
+       t.captionLabel().style().backgroundWidth = 45;
+       t.captionLabel().style().backgroundHeight = 13;
+     }
+}
+
+
+void draw() {
+  background(myColorBackground);
+}
+
+
+void keyPressed() {
+  switch(key) {
+    case('0'): r.deactivateAll(); break;
+    case('1'): r.activate(0); break;
+    case('2'): r.activate(1); break;
+    case('3'): r.activate(2); break;
+    case('4'): r.activate(3); break;
+  }
+  
+}
+
+void controlEvent(ControlEvent theEvent) {
+  if(theEvent.isFrom(r)) {
+    int num = int(theEvent.getValue() - 1);
+    println("num = "+num);
+    print("got an event from "+theEvent.getName()+"\t");
+    
+    for(int i=0;i<theEvent.getGroup().getArrayValue().length;i++) {
+      print(int(theEvent.getGroup().getArrayValue()[i]));
+    
+      if(i == num){
+        arduino.digitalWrite(led[num], Arduino.LOW);
+      }
+      else{
+        arduino.digitalWrite(led[num], Arduino.HIGH);
+      }
+    }
+
+
+    println("\t "+theEvent.getValue());
+    myColorBackground = color(int(theEvent.group().value()*50),0,0);
+  }
+}
+
+void radioButton(int a) {
+  println("a radio Button event: "+a);
+}
