@@ -1,0 +1,75 @@
+
+/*
+ * WiFlyHQ WiSmoke WiSmoke.ino
+ *
+ * This sketch implements a simple Web client that connects to a 
+ * web server, sends a GET, and then sends the result to the 
+ * Serial monitor.
+ *
+ * This sketch is released to the public domain.
+ *
+ */
+
+#include <WiFlyHQ.h>
+
+#include <SoftwareSerial.h>
+SoftwareSerial debugSerial(8,9);
+
+//#include <AltSoftSerial.h>
+//AltSoftSerial wifiSerial(8,9);
+
+WiFly wifly;
+
+/* Change these to match your WiFi network */
+const char mySSID[] = "jim";
+const char myPassword[] = "";
+
+const char site[] = "chloe.codemeu.com";
+
+void terminal();
+
+void setup()
+{
+    char buf[32];
+
+    /*Serial.println("Starting");*/
+    /*Serial.print("Free memory: ");*/
+    /*Serial.println(wifly.getFreeMemory(),DEC);*/
+    pinMode(13, OUTPUT);
+    Serial.begin(9600);
+    debugSerial.begin(9600);
+    wifly.begin(&Serial, &debugSerial);
+
+   
+        wifly.setSSID(mySSID);
+        wifly.setPassphrase(myPassword);
+        wifly.enableDHCP();
+
+        wifly.join();
+   
+
+    wifly.setDeviceID("Wifly-WebClient");
+
+
+}
+
+void loop()
+{
+    if (wifly.isConnected()) {
+        /*Serial.println("Old connection active. Closing");*/
+        wifly.close();
+    }
+
+    if (wifly.open(site, 80)) {
+        /*Serial.print("Connected to ");*/
+        /*Serial.println(site);*/
+        int sensorValue = analogRead(A0);
+        /* Send the request */
+        wifly.print("GET /?fio&sensorvalue=");
+        wifly.print(sensorValue);
+        wifly.print(" HTTP/1.0");
+        wifly.println();
+    }
+    delay(1000);
+}
+
