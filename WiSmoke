@@ -1,12 +1,7 @@
-
 /*
- * WiFlyHQ WiSmoke WiSmoke.ino
- *
  * This sketch implements a simple Web client that connects to a 
- * web server, sends a GET, and then sends the result to the 
- * Serial monitor.
- *
- * This sketch is released to the public domain.
+ * web server, sends a GET request with the value from analog pin 0
+ * This sketch is released under the WTFPL.
  *
  */
 
@@ -31,10 +26,6 @@ void terminal();
 void setup()
 {
     char buf[32];
-
-    /*Serial.println("Starting");*/
-    /*Serial.print("Free memory: ");*/
-    /*Serial.println(wifly.getFreeMemory(),DEC);*/
     pinMode(13, OUTPUT);
     Serial.begin(9600);
     debugSerial.begin(9600);
@@ -61,8 +52,6 @@ void loop()
     }
 
     if (wifly.open(site, 80)) {
-        /*Serial.print("Connected to ");*/
-        /*Serial.println(site);*/
         int sensorValue = analogRead(A0);
         /* Send the request */
         wifly.print("GET /?fio&sensorvalue=");
